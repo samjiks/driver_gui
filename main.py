@@ -1,6 +1,7 @@
 # Welcome to the script ^^
 
-# test test github test
+# github test
+
 # This code uses PySimpleGUI, it could end up using PySimpleGUIQt for overlap on speed
 
 # Cause overlaps, animate, function for battery image change and brake alert, next organise MQTT, next organise USB
@@ -8,9 +9,9 @@
 # All the modules you will need to run the script
 import PySimpleGUI as Pg
 import PySimpleGUIQt as PgQ
-import PyQt5.QtGui as PqG
-import PyQt5.QtWidgets as PqW
-import PySide2.QtGui as PsG
+# import PyQt5.QtGui as PqG
+# import PyQt5.QtWidgets as PqW
+# import PySide2.QtGui as PsG
 import base64
 import threading
 import time
@@ -85,14 +86,16 @@ Battery_level = Pg.Column(
 # gig.loadFromData(base64.b64decode(Speedometer_dial))
 
 
-app = PqW.QApplication([])
-w = PqW.QWidget()
-pic = PqW.QLabel(w)
-pm = PqG.QPixmap()
-pm.loadFromData(base64.b64decode(Speedometer_needle))
-pic.setPixmap(pm)
-w.show()
-app.exec_()
+app = PgQ.QApplication([])
+# Without ^ the program returns exit code -1073740791 (0xC0000409)
+
+# w = PgQ.QWidget()
+# pic = PgQ.QLabel(w)
+# pm = PgQ.QPixmap()
+# pm.loadFromData(base64.b64decode(Speedometer_needle))
+# pic.setPixmap(pm)
+# w.show()
+# app.exec_()
 
 
 # ---------------------Warning! Test Zone--------------------- #
@@ -103,10 +106,28 @@ Speed_level = Pg.Column(
     [
         [
             Pg.Text('', pad=(0, 0), key='-LEFT-PLACEHOLDER-', size=(2, 19)),
+
+########################################################################################################################################################################
+# ---------------------Warning! Test Zone--------------------- #
+
+            # w.show(),
+            PgQ.QPixmap(data=Speedometer_needle),
+
+# ---------------------Warning! Test Zone--------------------- #
+########################################################################################################################################################################
+
+
             Pg.Image(data=Speedometer_needle, key='-Speed-', visible=True),
             Pg.Image(data=Speedometer_dial)
         ]
     ], size=(310, 300), justification='center')
+
+########################################################################################################################################################################
+# ---------------------Warning! Test Zone--------------------- #
+
+# ---------------------Warning! Test Zone--------------------- #
+########################################################################################################################################################################
+
 
 # The layout for the GUI window
 The_layout = [[
