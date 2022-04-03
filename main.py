@@ -1,4 +1,6 @@
 # Welcome to the script ^^
+
+# test test github test
 # This code uses PySimpleGUI, it could end up using PySimpleGUIQt for overlap on speed
 
 # Cause overlaps, animate, function for battery image change and brake alert, next organise MQTT, next organise USB
@@ -83,14 +85,14 @@ Battery_level = Pg.Column(
 # gig.loadFromData(base64.b64decode(Speedometer_dial))
 
 
-# app = PqW.QApplication([])
+app = PqW.QApplication([])
 w = PqW.QWidget()
 pic = PqW.QLabel(w)
 pm = PqG.QPixmap()
 pm.loadFromData(base64.b64decode(Speedometer_needle))
 pic.setPixmap(pm)
 w.show()
-# app.exec_()
+app.exec_()
 
 
 # ---------------------Warning! Test Zone--------------------- #
