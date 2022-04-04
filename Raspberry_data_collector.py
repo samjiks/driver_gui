@@ -1,43 +1,66 @@
 import paho.mqtt.client as pm
 import time
+import sys
 
 
 
-# ---------------------|Start of MQTT Subscription|--------------------- #
-#
-#
-#
-def connection_test(client, userdata, flags, rc):
-    if rc==0:
-        print('Connected successfully')
+try:
+    # ---------------------|Start of MQTT Subscription|--------------------- #
+    #
+    #
+    #
+
+    # Packet ID:
+    # Battery = 0
+    # Speed = 1
+
+
+
+    def connection_test(client, userdata, flags, rc):
+        if rc == 0:
+            ConnectionFlag = True
+            print('Connected successfully')
+        else:
+            print('Unable to connect to Broker, Returned code was =', rc)
+            ConnectionFlag = False
+            sys.exit(1)
+
+
+    def data_logger(client, userdata, level, buf):
+        print('Log: ' + buf)
+
+    def the_message(client, userdata, message):
+        print('The value of the', str(message.payload.decode("utf-8")))
+
+    ConnectionFlag = False
+
+
+
+
+    Broker = 'localhost'
+
+    RPSubscriber = pm.Client('RaspberryPi')
+
+
+    RPSubscriber.connect(Broker)
+
+    print('connecting to the Broker')
+    RPSubscriber.subscribe([('BatteryLevel',0), ('SpeedLevel', 1)])
+
+    RPSubscriber.on_connect = connection_test
+    RPSubscriber.on_log = data_logger
+    RPSubscriber.on_message = the_message
+
+    if RPSubscriber.is_connected() == False:
+        RPSubscriber.loop_forever()
     else:
-        print('Unable to connect, Returned code was =', rc)
+        RPSubscriber.disconnect()
+        sys.exit(1)
+    print('wat..')
+    #
+    #
+    #
+    # ---------------------|End of MQTT Subscription|--------------------- #
 
-# def data_logger(client, userdata, level, buf):
-#     print('Log: '+buf)
-
-def on_message(client, userdata, message):
-    print('Apparently the battery level is ', str(message.payload.decode("utf-8")))
-
-# def simple(client, userdata, flags, rc):
-#     print('connection achieved')
-
-Broker = 'localhost'
-client = pm.Client('RaspberryPi')
-client.connect(Broker)
-
-client.loop_start()
-
-client.subscribe('BatteryLevel')
-
-client.on_message = on_message
-# client.on_connect = simple
-client.on_connect = connection_test
-# client.on_log = data_logger
-
-time.sleep(80)
-client.loop_stop()
-#
-#
-#
-# ---------------------|End of MQTT Subscription|--------------------- #
+except KeyboardInterrupt:
+    print('KeyPress detected, closing')

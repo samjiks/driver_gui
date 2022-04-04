@@ -13,7 +13,6 @@ import PySimpleGUIQt as PgQ
 # import PyQt5.QtGui as PqG
 # import PyQt5.QtWidgets as PqW
 # import PySide2.QtGui as PsG
-# All the modules you will need to run the MQTT:
 import paho.mqtt.client as pm
 # Other essential  modules:
 import base64
@@ -21,8 +20,18 @@ import threading
 import time
 import os
 import sys
+import subprocess
+
+# ---------------------|Start of File Exec|--------------------- #
+#
+#
+#
 
 
+#
+#
+#
+# ---------------------|End of File Exec|--------------------- #
 
 # ---------------------|Start of GUI|--------------------- #
 #
@@ -200,6 +209,7 @@ WarningList_False = (
 # All the functions needed:
 
 
+
 def guiupdater(wait=1):
     toggle = False
     while True:
@@ -260,7 +270,11 @@ def init():
 
 
 # All the loops needed:
+subprocess.call('python3 Speed_readings.py', shell=True)
+subprocess.call('python3 Battery_readings.py', shell=True)
+subprocess.call('python3 Raspberry_data_collector.py', shell=True)
 init()
+
 while True:
 
     event, values = window_main.read()
