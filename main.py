@@ -154,7 +154,7 @@ The_layout = [[
     Pg.Column([
         [Pg.Text('Welcome to the Driver UI Demo', expand_x=True, justification='center')],
         [
-            Pg.Button('Run Program', key=KEY_TEST, expand_x=True),
+            Pg.Button('Run Program', key=KEY_TEST, expand_x=True, metadata=False),
             Pg.Button('Exit Program', key=KEY_EXIT, expand_x=True)
         ],
         [Battery_level, Speed_level],
@@ -187,6 +187,7 @@ window_main.set_cursor(cursor='')
 # Variables and Arrays for loops below
 # toggle = False
 Test_Variable = 0
+stop_threads = False
 
 StateList = (
     Battery_0, Battery_14, Battery_29, Battery_43, Battery_57, Battery_71, Battery_86, Battery_100, Battery_Charging,
@@ -212,7 +213,7 @@ WarningList_False = (
 
 def guiupdater(wait=1):
     toggle = False
-    while True:
+    while stop_threads == False:
         for i, _ in enumerate(StateList):
             time.sleep(wait)
             data = StateList[i]
@@ -220,11 +221,12 @@ def guiupdater(wait=1):
             window_main[KEY_BRAKEL].update(visible=toggle)
             window_main[KEY_BRAKER].update(visible=toggle)
             toggle = not toggle
-
+        if stop_threads:
+            break
 
 def warning(wait=1):
     yl = 0
-    while True:
+    while stop_threads == False:
         for a, _ in enumerate(WarningList):
             if yl == 3:
                 yl = 0
@@ -234,6 +236,7 @@ def warning(wait=1):
             window_main[WarningList[a]].update(data=data)
             if a == len(WarningList) - 1:
                 yl = yl + 1
+
 
     # ---------------------Incomplete Step warning function--------------------- #
     # while True:
@@ -264,15 +267,17 @@ def warning(wait=1):
 
 def init():
     window_main[KEY_BATTERY].update(data=StateList[9])
+    stop_threads = False
+
 
 
 # window.write_event_value('-THREAD-', 'DONE')  # put a message into queue for GUI
 
 
 # All the loops needed:
-subprocess.call('python3 Speed_readings.py', shell=True)
-subprocess.call('python3 Battery_readings.py', shell=True)
-subprocess.call('python3 Raspberry_data_collector.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
 init()
 
 while True:
@@ -285,9 +290,17 @@ while True:
         sys.exit(0)
     # ---------------------Multithreading testing Protocol--------------------- #
     elif event == KEY_TEST:
-        print('Test Button Pressed')
-        threading.Thread(target=guiupdater, daemon=True).start()
-        threading.Thread(target=warning, daemon=True).start()
+        if window_main[KEY_TEST].metadata == False:
+            print('Test Button Pressed, starting demo')
+            threading.Thread(target=guiupdater, daemon=True).start()
+            threading.Thread(target=warning, daemon=True).start()
+            window_main[KEY_TEST].metadata = not window_main[KEY_TEST].metadata
+        elif window_main[KEY_TEST].metadata == True:
+            print('Test Button Pressed, stopping demo')
+            stop_threads = True
+            threading.Thread(target=guiupdater, daemon=True).join()
+            threading.Thread(target=warning, daemon=True).join()
+            window_main[KEY_TEST].metadata = not window_main[KEY_TEST].metadata
     # ---------------------Single step testing Protocol--------------------- #
     # if event == 'Test':
     #     print('LEN is ', len(StateList))
