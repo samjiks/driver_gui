@@ -23,7 +23,6 @@ try:
             ConnectionFlag = False
             sys.exit(1)
 
-
     def data_logger(client, userdata, level, buf):
         print('Log: ' + buf)
 
@@ -36,7 +35,7 @@ try:
     RPSubscriber.connect(Broker)
 
     print('connecting to the Broker')
-    RPSubscriber.subscribe([('BatteryLevel',0), ('SpeedLevel', 1)])
+    RPSubscriber.subscribe([('$SYS/broker/clients/connected/BatteryLevel',0), ('$SYS/broker/clients/connected/SpeedLevel', 1)])
 
     RPSubscriber.on_connect = connection_test
     RPSubscriber.on_log = data_logger

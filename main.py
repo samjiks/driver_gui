@@ -276,13 +276,13 @@ def init():
 
 # All the loops needed:
 # For windows:
-# subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
-# subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
-# subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
 # For Raspberry pi:
-subprocess.call(['gnome-terminal', '-X', 'python3 Speed_readings.py'], shell=True)
-subprocess.call(['gnome-terminal', '-X', 'python3 Battery_readings.py'], shell=True)
-subprocess.call[('gnome-terminal', '-X', 'python3 Raspberry_data_collector.py'], shell=True)
+# subprocess.call(['gnome-terminal', '-X', 'python3 Speed_readings.py'], shell=True)
+# subprocess.call(['gnome-terminal', '-X', 'python3 Battery_readings.py'], shell=True)
+# subprocess.call(['gnome-terminal', '-X', 'python3 Raspberry_data_collector.py'], shell=True)
 
 init()
 while True:
