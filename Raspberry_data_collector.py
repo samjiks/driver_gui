@@ -14,8 +14,6 @@ try:
     # Battery = 0
     # Speed = 1
 
-
-
     def connection_test(client, userdata, flags, rc):
         if rc == 0:
             ConnectionFlag = True
@@ -30,18 +28,11 @@ try:
         print('Log: ' + buf)
 
     def the_message(client, userdata, message):
-        print('The value of the', str(message.payload.decode("utf-8")))
+        print('The value of the', print(client), 'is ', str(message.payload.decode("utf-8")))
 
     ConnectionFlag = False
-
-
-
-
     Broker = 'localhost'
-
     RPSubscriber = pm.Client('RaspberryPi')
-
-
     RPSubscriber.connect(Broker)
 
     print('connecting to the Broker')
