@@ -275,11 +275,16 @@ def init():
 
 
 # All the loops needed:
-subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
-subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
-subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
-init()
+# For windows:
+# subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
+# subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
+# subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
+# For Raspberry pi:
+# subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
+# subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
+# subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)  
 
+init()
 while True:
 
     event, values = window_main.read()

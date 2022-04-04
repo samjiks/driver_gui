@@ -3,7 +3,7 @@ import time
 
 try:
     Broker = "localhost"
-    client = pm.Client('BATTERY_LEVEL',0)
+    client = pm.Client('BATTERY_LEVEL', 0)
     client.connect(Broker)
 
     while True:

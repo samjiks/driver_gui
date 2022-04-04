@@ -3,7 +3,7 @@ import time
 
 try:
     Broker = "localhost"
-    client = pm.Client('SPEED_LEVEL',1)
+    client = pm.Client('SPEED_LEVEL', 1)
     client.connect(Broker)
 
     # [('BatteryLevel',0), ('SpeedLevel', 1)]
