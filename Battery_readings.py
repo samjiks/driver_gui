@@ -7,7 +7,6 @@ try:
     client.connect(Broker)
 
     while True:
-
         for Current_Battery_Level in range(0, 113):
             # client.publish('$SYS/broker/clients/connected/BatteryLevel', str(Current_Battery_Level))
             # client.publish('BatteryLevel', str(Current_Battery_Level))

@@ -6,8 +6,6 @@ try:
     client = pm.Client('SPEED_LEVEL', 1)
     client.connect(Broker)
 
-    # [('BatteryLevel',0), ('SpeedLevel', 1)]
-
     while True:
         for Current_Speed in range(0, 30):
             # client.publish('$SYS/broker/clients/connected/SpeedLevel', str(Current_Speed))

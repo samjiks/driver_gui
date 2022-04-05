@@ -3,7 +3,6 @@
 
 import PySimpleGUI as Pg
 import PySimpleGUIQt
-import PySimpleGUIQt as PgQ
 import numpy as np
 import paho.mqtt.client as pm
 import base64
@@ -85,8 +84,8 @@ Battery_level = Pg.Column(
 Speed_level = Pg.Column(
     [
             [Pg.Text('', expand_x=True,expand_y=True)],
-            [Pg.Text('100', key=KEY_ACCEL, font='_ 10')],
-            [Pg.Text('20.00', key=KEY_SPEED, font='_ 80', expand_x=True, expand_y=True)],
+            [Pg.Text('', key=KEY_ACCEL, font='_ 10', size=(25, 1), background_color='white')],
+            [Pg.Text('', key=KEY_SPEED, font='_ 80', expand_x=True, expand_y=True, background_color='white')],
             [
                 Pg.Text('', size=(15, 1)),
                 Pg.Text('km/h', font='_ 50')
@@ -131,9 +130,8 @@ window_main = Pg.Window('', The_layout, grab_anywhere=True, no_titlebar=True,
 # Removes the cursor from the GUI, requires the finalize option in the window setup code to be True, set to 'None' or ''
 window_main.set_cursor(cursor='')
 
+
 # Variables and Arrays for loops below:
-toggle = False
-Test_Variable = 0
 
 StateList = (
     Battery_0, Battery_14, Battery_29, Battery_43, Battery_57, Battery_71, Battery_86, Battery_100, Battery_Charging,
@@ -155,7 +153,6 @@ WarningList_False = (
 
 # All the functions needed:
 
-
 def guiupdater(wait=1):
     toggle = False
     while True:
@@ -168,16 +165,16 @@ def guiupdater(wait=1):
             toggle = not toggle
 
 
-def speed_adjustor(wait=0.002):
+def speed_adjustor(wait=0.2):
     toggle = False
     while True:
-        for i in np.arange(0, 30, 0.05):
+        for i in range(30):
             time.sleep(wait)
             window_main[KEY_SPEED].update(i)
             toggle = not toggle
 
 
-def accel_adjustor(wait=0.04):
+def accel_adjustor(wait=0.1):
     toggle = False
     while True:
         for i in range(100):
@@ -209,10 +206,12 @@ def init():
 
 # subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
 # subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
+# subprocess.call('start cmd.exe @cmd /k python3 Accel_readings.py', shell=True)
 # subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
 # For Raspberry pi:
 # subprocess.call(['gnome-terminal', '-X', 'python3 Speed_readings.py'], shell=True)
 # subprocess.call(['gnome-terminal', '-X', 'python3 Battery_readings.py'], shell=True)
+# subprocess.call(['gnome-terminal', '-X', 'python3 Accel_readings.py'], shell=True)
 # subprocess.call(['gnome-terminal', '-X', 'python3 Raspberry_data_collector.py'], shell=True)
 
 # Main Loop:
@@ -226,23 +225,13 @@ while True:
         sys.exit(0)
     # ---------------------Multithreading testing Protocol--------------------- #
     elif event == KEY_TEST:
-        if window_main[KEY_TEST].metadata == False:
-            print(window_main[KEY_TEST].metadata)
-            print('Test Button Pressed, starting demo')
+        if True:
             threading.Thread(target=guiupdater, daemon=True).start()
             threading.Thread(target=warning, daemon=True).start()
             threading.Thread(target=speed_adjustor, daemon=True).start()
             threading.Thread(target=accel_adjustor, daemon=True).start()
-            window_main[KEY_TEST].metadata = True
-            print(window_main[KEY_TEST].metadata)
-        elif window_main[KEY_TEST].metadata == True:
-            print(window_main[KEY_TEST].metadata)
-            print('Test Button Pressed, stopping demo')
-            window_main.read()
-            window_main[KEY_TEST].metadata = not window_main[KEY_TEST].metadata
-            print(window_main[KEY_TEST].metadata)
-    window_main.close()
-#
-#
-#
+
+    #
+    #
+    #
 # ---------------------|End of GUI|--------------------- #

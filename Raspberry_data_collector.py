@@ -12,6 +12,7 @@ try:
     # Packet ID:
     # Battery = 0
     # Speed = 1
+    # Accel = 2
 
     def connection_test(client, userdata, flags, rc):
         if rc == 0:
@@ -37,7 +38,7 @@ try:
 
     # RPSubscriber.subscribe([('$SYS/broker/clients/connected/BatteryLevel', 0), ('$SYS/broker/clients/connected/SpeedLevel', 1)])
     # RPSubscriber.subscribe([('BatteryLevel', 0), ('SpeedLevel', 1)])
-    RPSubscriber.subscribe([('BatteryLevel', 0), ('SpeedLevel', 1)])
+    RPSubscriber.subscribe([('BatteryLevel', 0), ('SpeedLevel', 1), ('AccelLevel', 2)])
 
     RPSubscriber.on_connect = connection_test
     RPSubscriber.on_log = data_logger
