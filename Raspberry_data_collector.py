@@ -3,7 +3,6 @@ import time
 import sys
 
 
-
 try:
     # ---------------------|Start of MQTT Subscription|--------------------- #
     #
