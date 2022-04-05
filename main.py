@@ -2,7 +2,6 @@
 
 
 import PySimpleGUI as Pg
-import PySimpleGUIQt
 import numpy as np
 import paho.mqtt.client as pm
 import base64
