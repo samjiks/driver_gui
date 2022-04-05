@@ -8,10 +8,10 @@ try:
 
     while True:
         for Current_Accel_Level in range(0, 100):
-            # client.publish('$SYS/broker/clients/connected/BatteryLevel', str(Current_accel_Level))
-            # client.publish('AccelLevel', str(Current_Battery_Level))
-            client.publish('BatteryLevel', str(Current_Battery_Level))
-            print('Just published the battery level as', str(Current_Accel_Level), 'to the topic accel_LEVEL')
+            # client.publish('$SYS/broker/clients/connected/AccelLevel', str(Current_Accel_Level))
+            # client.publish('AccelLevel', str(Current_Accel_Level))
+            client.publish('AccelLevel', str(Current_Accel_Level))
+            print('Just published the accel level as', str(Current_Accel_Level), 'to the topic ACCEL_LEVEL')
             time.sleep(1)
 
 except KeyboardInterrupt:

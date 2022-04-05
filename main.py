@@ -11,6 +11,11 @@ import time
 import os
 import sys
 import subprocess
+# The Raspberry's subscriber to our Broker
+
+# with open('ArraySheet.txt', 'r') as f:
+#     lines = f.readlines()
+#     print(lines)
 
 
 # ---------------------|Start of GUI|--------------------- #
@@ -66,6 +71,7 @@ KEY_BRAKEL = '-BrakeL-'
 KEY_BRAKER = '-BrakeR-'
 KEY_SPEED = '-SPEED-'
 KEY_ACCEL = '-ACCEL-'
+KEY_MQTT = '-MQTT-'
 
 
 # Colour template for the window, can be customized per component but much more compact and tidy with theme.
@@ -105,6 +111,7 @@ The_layout = [[
         [Pg.Text('Welcome to the Driver UI Demo', expand_x=True, justification='center')],
         [
             Pg.Button('Run Program', key=KEY_TEST, expand_x=True, metadata=False),
+            Pg.Button(' T E L E M E T R Y ', key=KEY_MQTT, expand_x=True, metadata=False),
             Pg.Button('Exit Program', key=KEY_EXIT, expand_x=True)
         ],
         [Battery_level, Speed_level],
@@ -203,15 +210,16 @@ def init():
 
 
 # For windows:
-
-# subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
-# subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
-# subprocess.call('start cmd.exe @cmd /k python3 Accel_readings.py', shell=True)
-# subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Accel_readings.py', shell=True)
+time.sleep(1)
+subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
 # For Raspberry pi:
 # subprocess.call(['gnome-terminal', '-X', 'python3 Speed_readings.py'], shell=True)
 # subprocess.call(['gnome-terminal', '-X', 'python3 Battery_readings.py'], shell=True)
 # subprocess.call(['gnome-terminal', '-X', 'python3 Accel_readings.py'], shell=True)
+# time.sleep(1)
 # subprocess.call(['gnome-terminal', '-X', 'python3 Raspberry_data_collector.py'], shell=True)
 
 # Main Loop:
@@ -230,7 +238,9 @@ while True:
             threading.Thread(target=warning, daemon=True).start()
             threading.Thread(target=speed_adjustor, daemon=True).start()
             threading.Thread(target=accel_adjustor, daemon=True).start()
-
+    elif event == KEY_MQTT:
+        if True:
+            break
     #
     #
     #
