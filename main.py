@@ -159,7 +159,7 @@ WarningList_False = (
 
 # All the functions needed:
 
-def guiupdater(wait=1):
+def test_guiupdater(wait=1):
     toggle = False
     while True:
         for i, _ in enumerate(StateList):
@@ -171,7 +171,7 @@ def guiupdater(wait=1):
             toggle = not toggle
 
 
-def speed_adjustor(wait=0.2):
+def test_speed_adjustor(wait=0.2):
     toggle = False
     while True:
         for i in range(30):
@@ -180,7 +180,7 @@ def speed_adjustor(wait=0.2):
             toggle = not toggle
 
 
-def accel_adjustor(wait=0.1):
+def test_accel_adjustor(wait=0.1):
     toggle = False
     while True:
         for i in range(100):
@@ -189,7 +189,7 @@ def accel_adjustor(wait=0.1):
             toggle = not toggle
 
 
-def warning(wait=1):
+def test_warning(wait=1):
     yl = 0
     while True:
         for a, _ in enumerate(WarningList):
@@ -203,23 +203,53 @@ def warning(wait=1):
                 yl = yl + 1
 
 
+# def guiupdater(wait=1):
+#     toggle = False
+#     while True:
+#         for i, _ in enumerate(StateList):
+#             time.sleep(wait)
+#             data = StateList[i]
+#             window_main[KEY_BATTERY].update(data=data)
+#             window_main[KEY_BRAKEL].update(visible=toggle)
+#             window_main[KEY_BRAKER].update(visible=toggle)
+#             toggle = not toggle
+#
+#
+# def speed_adjustor(wait=0.2):
+#     toggle = False
+#     while True:
+#         for i in range(30):
+#             time.sleep(wait)
+#             window_main[KEY_SPEED].update(i)
+#             toggle = not toggle
+#
+#
+# def accel_adjustor(wait=0.1):
+#     toggle = False
+#     while True:
+#         for i in range(100):
+#             time.sleep(wait)
+#             window_main[KEY_ACCEL].update('Current Acceleration torque: '+str(i)+'%')
+#             toggle = not toggle
+
+
 def init():
     window_main[KEY_BATTERY].update(data=StateList[9])
 # window.write_event_value('-THREAD-', 'DONE')  # put a message into queue for GUI
 
 
 # For windows:
-subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
-subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
-subprocess.call('start cmd.exe @cmd /k python3 Accel_readings.py', shell=True)
-time.sleep(1)
-subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
-# For Raspberry pi:
-# subprocess.call(['gnome-terminal', '-X', 'python3 Speed_readings.py'], shell=True)
-# subprocess.call(['gnome-terminal', '-X', 'python3 Battery_readings.py'], shell=True)
-# subprocess.call(['gnome-terminal', '-X', 'python3 Accel_readings.py'], shell=True)
+# # subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
+# # subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
+# # subprocess.call('start cmd.exe @cmd /k python3 Accel_readings.py', shell=True)
 # time.sleep(1)
-# subprocess.call(['gnome-terminal', '-X', 'python3 Raspberry_data_collector.py'], shell=True)
+# subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
+# For Raspberry pi:
+# subprocess.call('lxterminal -e python3.10 Speed_readings.py', shell=True)
+# subprocess.call('lxterminal -e python3.10 Battery_readings.py', shell=True)
+# subprocess.call('lxterminal -e python3.10 Accel_readings.py', shell=True)
+time.sleep(1)
+subprocess.call('lxterminal -e python3.10 Raspberry_data_collector.py', shell=True)
 
 # Main Loop:
 init()
@@ -233,13 +263,16 @@ while True:
     # ---------------------Multithreading testing Protocol--------------------- #
     elif event == KEY_TEST:
         if True:
-            threading.Thread(target=guiupdater, daemon=True).start()
-            threading.Thread(target=warning, daemon=True).start()
-            threading.Thread(target=speed_adjustor, daemon=True).start()
-            threading.Thread(target=accel_adjustor, daemon=True).start()
-    elif event == KEY_MQTT:
-        if True:
-            break
+            threading.Thread(target=test_warning, daemon=True).start()
+            threading.Thread(target=test_guiupdater, daemon=True).start()
+            threading.Thread(target=test_speed_adjustor, daemon=True).start()
+            threading.Thread(target=test_accel_adjustor, daemon=True).start()
+    # elif event == KEY_MQTT:
+    #     if True:
+    #         threading.Thread(target=guiupdater, daemon=True).start()
+    #         threading.Thread(target=speed_adjustor, daemon=True).start()
+    #         threading.Thread(target=accel_adjustor, daemon=True).start()
+    #         break
     #
     #
     #
