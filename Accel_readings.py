@@ -2,7 +2,7 @@ import paho.mqtt.client as pm
 import time
 
 try:
-    Broker = "localhost"
+    Broker = "192.168.0.33"
     client = pm.Client('ACCEL_LEVEL', 2)
     client.connect(Broker)
 
