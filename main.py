@@ -239,17 +239,17 @@ def init():
 
 
 # For windows:
-# # subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
-# # subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
-# # subprocess.call('start cmd.exe @cmd /k python3 Accel_readings.py', shell=True)
-# time.sleep(1)
-# subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
+subprocess.call('start cmd.exe @cmd /k python3 Accel_readings.py', shell=True)
+time.sleep(1)
+subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
 # For Raspberry pi:
 # subprocess.call('lxterminal -e python3.10 Speed_readings.py', shell=True)
 # subprocess.call('lxterminal -e python3.10 Battery_readings.py', shell=True)
 # subprocess.call('lxterminal -e python3.10 Accel_readings.py', shell=True)
-time.sleep(1)
-subprocess.call('lxterminal -e python3.10 Raspberry_data_collector.py', shell=True)
+# time.sleep(1)
+# subprocess.call('lxterminal -e python3.10 Raspberry_data_collector.py', shell=True)
 
 # Main Loop:
 init()
