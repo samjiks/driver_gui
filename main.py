@@ -7,6 +7,7 @@
 # Cause overlaps, animate, function for battery image change and brake alert, next organise MQTT, next organise USB
 
 # All the modules you will need to run the GUI:
+from concurrent.futures import thread
 import PySimpleGUI as Pg
 # import PySimpleGUIQt
 # import PySimpleGUIQt as PgQ
@@ -173,18 +174,26 @@ def guiupdater(wait=1):
         if stop_threads:
             break
 
-def warning(wait=1):
-    yl = 0
-    while stop_threads == False:
-        for a, _ in enumerate(WarningList):
-            if yl == 3:
-                yl = 0
-            time.sleep(wait)
+class Warning(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__()
+        self.name = "Warning"
+        self.stop_threads = True
+
+    def run(self):
+        y1 = 0
+        while self.stop_threads:
+            for a, _ in enumerate(WarningList):
+                if yl == 3:
+                    yl = 0
+            time.sleep(self.wait)
             order = (WarningList_True[a], WarningList_False[a], WarningList_Default[a])
             data = order[yl]
             window_main[WarningList[a]].update(data=data)
             if a == len(WarningList) - 1:
                 yl = yl + 1
+
+    
 
 
     # ---------------------Incomplete Step warning function--------------------- #
@@ -229,7 +238,7 @@ def init():
 # For Raspberry pi:
 subprocess.call(['gnome-terminal', '-X', 'python3 Speed_readings.py'], shell=True)
 subprocess.call(['gnome-terminal', '-X', 'python3 Battery_readings.py'], shell=True)
-subprocess.call[('gnome-terminal', '-X', 'python3 Raspberry_data_collector.py'], shell=True)
+subprocess.call(['gnome-terminal', '-X', 'python3 Raspberry_data_collector.py'], shell=True)
 
 init()
 while True:
