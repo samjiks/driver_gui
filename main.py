@@ -1,43 +1,45 @@
-# Welcome to the script ^^
+# -*- coding: utf-8 -*-
+""" A Driver GUI PROGRAM
 
-# GitHub test
+A MQTT driven simulator program to update car telemetrics
 
-# This code uses PySimpleGUI, it could end up using PySimpleGUIQt for overlap on speed
+@author: Christy J Finny
+@Organization University
 
-# Cause overlaps, animate, function for battery image change and brake alert, next organise MQTT, next organise USB
 
-# All the modules you will need to run the GUI:
-from concurrent.futures import thread
-import PySimpleGUI as Pg
-# import PySimpleGUIQt
-# import PySimpleGUIQt as PgQ
-# import PyQt5.QtGui as PqG
-# import PyQt5.QtWidgets as PqW
-# import PySide2.QtGui as PsG
-import paho.mqtt.client as pm
-# Other essential  modules:
+"""
+import argparse
 import base64
+from cProfile import run
 import threading
 import time
 import os
 import sys
 import subprocess
 
-from constants import *
+import PySimpleGUI as Pg
+import numpy as np
+import paho.mqtt.client as pm
 
-# Key's for the GUI
+from constants import * 
+
+# Key's for the GUI:
 KEY_EXIT = '-EXIT-'
-KEY_TEST = '-TEST-'
+KEY_START = '-START-'
+KEY_STOP = '-STOP-'
 KEY_BATTERY = '-BATTERY-'
-# KEY_BRAKE = '-BrakeL-', '-BrakeR-' ----> if this is possible it can replace KEYS below
+# KEY_BRAKE = '-BrakeL-'+ '-BrakeR-' # ----> if this is possible it can replace KEY_BRAKEL & KEY_BRAKER below
 KEY_BRAKEL = '-BrakeL-'
 KEY_BRAKER = '-BrakeR-'
+KEY_SPEED = '-SPEED-'
+KEY_ACCEL = '-ACCEL-'
+KEY_MQTT = '-MQTT-'
+
 
 # Colour template for the window, can be customized per component but much more compact and tidy with theme.
 Pg.theme('LightBrown1')
 
-# Columns that contains two levels and images; useful code for sizing images: subsample=
-# Brake = Pg.Column([[Pg.Text('', key='-Brake-', size=(3, 30), background_color='red')]])
+# Columns for the layout; useful code for sizing images: subsample=
 Battery_level = Pg.Column(
     [
         [
@@ -46,56 +48,22 @@ Battery_level = Pg.Column(
         ]
     ], size=(310, 300), justification='center')
 
-########################################################################################################################################################################
-# ---------------------Warning! Test Zone--------------------- #
-
-# gig = PsG.QPixmap()
-# gig.loadFromData(base64.b64decode(Speedometer_dial))
-
-
-# app = PgQ.QApplication([])
-# Without ^ the program returns exit code -1073740791 (0xC0000409)
-
-# w = PgQ.QWidget()
-# pic = PgQ.QLabel(w)
-# pm = PgQ.QPixmap()
-# pm.loadFromData(base64.b64decode(Speedometer_needle))
-# pic.setPixmap(pm)
-# w.show()
-# app.exec_()
-
-
-# ---------------------Warning! Test Zone--------------------- #
-########################################################################################################################################################################
-
-########################################################################################################################################################################
-# ---------------------Warning! Test Zone--------------------- #
-# Speedometer = PgQ.Tree ([
-#     PgQ.QPainter(data=Speedometer_needle)
-#     # error: must be an iterable, not NoneType
-#     # Column is not a parent type container, need to use one to host childern elements
-#     ])
-# ---------------------Warning! Test Zone--------------------- #
-########################################################################################################################################################################
 
 Speed_level = Pg.Column(
     [
-        [
-            Pg.Text('', pad=(0, 0), key='-LEFT-PLACEHOLDER-', size=(2, 19)),
+            [Pg.Text('', expand_x=True,expand_y=True)],
+            [Pg.Text('', key=KEY_ACCEL, font='_ 10', size=(25, 1), background_color='white')],
+            [Pg.Text('', key=KEY_SPEED, font='_ 80', expand_x=True, expand_y=True, background_color='white')],
+            [
+                Pg.Text('', size=(15, 1)),
+                Pg.Text('km/h', font='_ 50')
+            ]
 
-            ########################################################################################################################################################################
-            # ---------------------Warning! Test Zone--------------------- #
+            # Usable Base64 images:
+            # Pg.Image(data=Speedometer_needle, key='-Speed-', visible=True),
+            # Pg.Image(data=Speedometer_dial)
 
-            # w.show(),
-            # [Speedometer],
-            # print(dir(Speedometer)),
-            # ---------------------Warning! Test Zone--------------------- #
-            ########################################################################################################################################################################
-
-            Pg.Image(data=Speedometer_needle, key='-Speed-', visible=True),
-            Pg.Image(data=Speedometer_dial)
-        ]
-    ], size=(310, 300), justification='center')
+        ], size=(310, 300), justification='center')
 
 # The layout for the GUI window
 The_layout = [[
@@ -104,7 +72,9 @@ The_layout = [[
     Pg.Column([
         [Pg.Text('Welcome to the Driver UI Demo', expand_x=True, justification='center')],
         [
-            Pg.Button('Run Program', key=KEY_TEST, expand_x=True, metadata=False),
+            Pg.Button('Start', key=KEY_START, expand_x=True, metadata=False),
+            Pg.Button('Stop', key=KEY_STOP, expand_x=True, metadata=False),
+            Pg.Button(' T E L E M E T R Y ', key=KEY_MQTT, expand_x=True, metadata=False),
             Pg.Button('Exit Program', key=KEY_EXIT, expand_x=True)
         ],
         [Battery_level, Speed_level],
@@ -125,19 +95,13 @@ The_layout = [[
 
 # The Setup for the window itself, must go after layout, so it can refer to the The_layout label
 window_main = Pg.Window('', The_layout, grab_anywhere=True, no_titlebar=True,
-                        size=(800, 480), location=(0, 0), finalize=True)
-
-## The placeholders to centralize the warning buttons
-## The_Main_Window['-LEFT-PLACEHOLDER-'].expand(True, True, True)
-## The_Main_Window['-RIGHT-PLACEHOLDER-'].expand(True, False, True)
+                        size=(800, 480), location=(400,240), finalize=True)
 
 # Removes the cursor from the GUI, requires the finalize option in the window setup code to be True, set to 'None' or ''
 window_main.set_cursor(cursor='')
 
-# Variables and Arrays for loops below
-# toggle = False
-Test_Variable = 0
-stop_threads = False
+
+# Variables and Arrays for loops below:
 
 StateList = (
     Battery_0, Battery_14, Battery_29, Battery_43, Battery_57, Battery_71, Battery_86, Battery_100, Battery_Charging,
@@ -158,140 +122,174 @@ WarningList_False = (
 
 
 # All the functions needed:
+class BaseThread(threading.Thread):
 
-
-
-def guiupdater(wait=1):
-    toggle = False
-    while stop_threads == False:
-        for i, _ in enumerate(StateList):
-            time.sleep(wait)
-            data = StateList[i]
-            window_main[KEY_BATTERY].update(data=data)
-            window_main[KEY_BRAKEL].update(visible=toggle)
-            window_main[KEY_BRAKER].update(visible=toggle)
-            toggle = not toggle
-        if stop_threads:
-            break
-
-class Warning(threading.Thread):
     def __init__(self):
-        threading.Thread.__init__()
-        self.name = "Warning"
-        self.stop_threads = True
+        threading.Thread.__init__(self)
+        self._running = True
+        self._stop_event = threading.Event()
+        self._interval = 0
 
     def run(self):
-        y1 = 0
-        while self.stop_threads:
+        raise NotImplementedError
+
+    def terminate(self):
+        self._running = False
+
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.is_set()
+
+
+class GUIUpdateThread(BaseThread):
+
+    def __init__(self, wait=1):
+        super(GUIUpdateThread, self).__init__()
+        self._wait = wait
+        self.name = "gui_update"
+
+    def run(self):
+        toggle = False
+        while self._running:
+            for i, _ in enumerate(StateList):
+                time.sleep(self._wait)
+                data = StateList[i]
+                window_main[KEY_BATTERY].update(data=data)
+                window_main[KEY_BRAKEL].update(visible=toggle)
+                window_main[KEY_BRAKER].update(visible=toggle)
+                toggle = not toggle
+                is_killed = self._stop_event.wait(self._interval)
+                if is_killed:
+                    break
+
+
+class SpeedAdjustorThread(BaseThread):
+
+    def __init__(self, wait=0.2):
+        super(SpeedAdjustorThread, self).__init__()
+        self._wait = wait 
+        self.name = "speed_adjuster"
+
+    def run(self):
+        toggle = False
+        while self._running:
+            for i in range(30):
+                time.sleep(self._wait)
+                window_main[KEY_SPEED].update(i)
+                toggle = not toggle
+                is_killed = self._stop_event.wait(self._interval)
+                if is_killed:
+                    break
+
+
+class AccelAdjustorThread(BaseThread):
+
+    def __init__(self, wait=0.1):
+        super(AccelAdjustorThread, self).__init__()
+        self._wait = wait
+        self.name = "accel_adjustor"
+
+    def run(self):
+        toggle = False
+        while self._running:
+            for i in range(100):
+                time.sleep(self._wait)
+                window_main[KEY_ACCEL].update('Current Acceleration torque: '+str(i)+'%')
+                toggle = not toggle
+                is_killed = self._stop_event.wait(self._interval)
+                if is_killed:
+                    break
+
+
+class WarningThread(BaseThread):
+
+    def __init__(self, wait=1):
+        super(WarningThread, self).__init__()
+        self._wait = wait
+        self.name = "warning"
+
+    def run(self):
+        yl = 0
+        while self._running:
             for a, _ in enumerate(WarningList):
                 if yl == 3:
                     yl = 0
-            time.sleep(self.wait)
-            order = (WarningList_True[a], WarningList_False[a], WarningList_Default[a])
-            data = order[yl]
-            window_main[WarningList[a]].update(data=data)
-            if a == len(WarningList) - 1:
-                yl = yl + 1
-
-    
-
-
-    # ---------------------Incomplete Step warning function--------------------- #
-    # while True:
-    #     for a, _ in enumerate(WarningList):
-    #         print('Max should be', len(WarningList))
-    #         print('a is ', a)
-    #         print(WarningList[a])
-    #         time.sleep(wait)
-    #         default_data = WarningList_Default[a]
-    #         true_data = WarningList_True[a]
-    #         false_data = WarningList_False[a]
-    #         print('data is ', default_data)
-    #         print('data is ', true_data)
-    #         print('data is ', false_data)
-    #         if True:
-    #             window_main[WarningList[a]].update(data=default_data)
-    #             print('test')
-    #         if a >= 1:
-    #             window_main[WarningList[a]].update(data=true_data)
-    #             print('test1')
-    #         if a >= 2:
-    #             window_main[WarningList[a]].update(data=false_data)
-    #             print('test2')
-    #         else:
-    #             print('passed')
-    #             continue
+                time.sleep(self._wait)
+                order = (WarningList_True[a], WarningList_False[a], WarningList_Default[a])
+                data = order[yl]
+                window_main[WarningList[a]].update(data=data)
+                if a == len(WarningList) - 1:
+                    yl = yl + 1
+                is_killed = self._stop_event.wait(self._interval)
+                if is_killed:
+                    break
 
 
 def init():
     window_main[KEY_BATTERY].update(data=StateList[9])
-    stop_threads = False
+    window_main[KEY_STOP].update(disabled=True)
+    window_main[KEY_START].update(disabled=False)
+# window_main.write_event_value('-THREAD-', 'DONE')  # put a message into queue for GUI
 
 
-# window.write_event_value('-THREAD-', 'DONE')  # put a message into queue for GUI
-
-# All the loops needed:
 # For windows:
-# subprocess.call('start cmd.exe @cmd /k python3 Speed_readings.py', shell=True)
-# subprocess.call('start cmd.exe @cmd /k python3 Battery_readings.py', shell=True)
-# subprocess.call('start cmd.exe @cmd /k python3 Raspberry_data_collector.py', shell=True)
+#subprocess.call('start cmd.exe @cmd /k python Speed_readings.py', shell=True)
+#subprocess.call('start cmd.exe @cmd /k python Battery_readings.py', shell=True)
+#subprocess.call('start cmd.exe @cmd /k python Accel_readings.py', shell=True)
+#time.sleep(1)
+#subprocess.call('start cmd.exe @cmd /k python Raspberry_data_collector.py', shell=True)
 # For Raspberry pi:
-subprocess.call(['gnome-terminal', '-X', 'python3 Speed_readings.py'], shell=True)
-subprocess.call(['gnome-terminal', '-X', 'python3 Battery_readings.py'], shell=True)
-subprocess.call(['gnome-terminal', '-X', 'python3 Raspberry_data_collector.py'], shell=True)
+# subprocess.call('lxterminal -e python3.10 Speed_readings.py', shell=True)
+# subprocess.call('lxterminal -e python3.10 Battery_readings.py', shell=True)
+# subprocess.call('lxterminal -e python3.10 Accel_readings.py', shell=True)
+# time.sleep(1)
+# subprocess.call('lxterminal -e python3.10 Raspberry_data_collector.py', shell=True)
+    
+# Main Loop:
+def main():
+    init()
+    while True:
 
-init()
-while True:
+        gui_update = GUIUpdateThread()
+        speed_adjustor = SpeedAdjustorThread()
+        warning = WarningThread()
+        accel_adjustor = AccelAdjustorThread()
+        threads = []
+        threads.extend([gui_update, speed_adjustor, warning, accel_adjustor])
 
-    event, values = window_main.read()
-    # ---------------------Maintenance loop and exit function--------------------- #
-    if event == KEY_EXIT:
-        print('Closed from exit button')
+        event, values = window_main.read()
+        
+        if event == Pg.WIN_CLOSED or event == KEY_EXIT:
+            print('Closed from exit button')
+            window_main.close()
+            sys.exit(0)
+
+        elif event == KEY_START:
+            window_main[KEY_STOP].update(disabled=False)
+            window_main[KEY_START].update(disabled=True)
+
+            for t in threads:
+                t.setDaemon(True)
+                t.start()
+
+        elif event == KEY_STOP:
+            window_main[KEY_START].update(disabled=False)
+            window_main[KEY_STOP].update(disabled=True)
+
+            for t in threads:
+                t.stop()
+               # t.join()
+            
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
         window_main.close()
-        sys.exit(0)
-    # ---------------------Multithreading testing Protocol--------------------- #
-    elif event == KEY_TEST:
-        if window_main[KEY_TEST].metadata == False:
-            print('Test Button Pressed, starting demo')
-            threading.Thread(target=guiupdater, daemon=True).start()
-            threading.Thread(target=warning, daemon=True).start()
-            window_main[KEY_TEST].metadata = not window_main[KEY_TEST].metadata
-        elif window_main[KEY_TEST].metadata == True:
-            print('Test Button Pressed, stopping demo')
-            stop_threads = True
-            threading.Thread(target=guiupdater, daemon=True).join()
-            threading.Thread(target=warning, daemon=True).join()
-            window_main[KEY_TEST].metadata = not window_main[KEY_TEST].metadata
-    # ---------------------Single step testing Protocol--------------------- #
-    # if event == 'Test':
-    #     print('LEN is ', len(StateList))
-    #     print('RANGE is ', range(len(StateList)))
-    #     print('State BASE64 code is ', StateList[Test_Variable])
-    #     print('Unit is currently ', Test_Variable)
-    #     if Test_Variable < len(StateList):
-    #         print('Unit is currently ', Test_Variable)
-    #
-    #         window_main[KEY_BATTERY].update(data=StateList[Test_Variable])
-    #
-    #         window_main['-BrakeL-'].update(visible=toggle)
-    #         window_main['-BrakeR-'].update(visible=toggle)
-    #         toggle = not toggle
-    #
-    #         # The_Main_Window['-Speed-'].update(data=StateList[Test_Variable])
-    #
-    #         # The_Main_Window[ the warning lights ]
-    #
-    #         print('GUI should now be updated')
-    #         Test_Variable = Test_Variable + 1
-    #         print('Unit is now ', Test_Variable)
-    #     if Test_Variable == len(StateList):
-    #         print('This Array has run out, will reset the function now')
-    #         Test_Variable = 0
-    #         print('Unit is now ', Test_Variable)
-    #         continue
 
-window_main.close()
-#
-#
-#
-# ---------------------|End of GUI|--------------------- #
+  
+
+
